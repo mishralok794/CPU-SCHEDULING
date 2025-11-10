@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SRTF Scheduling</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body {
+  background: linear-gradient(135deg, #141e30, #243b55);
+  color: white;
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+header {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-shadow: 1px 1px 4px #000;
+}
+
+input {
+  margin: 5px;
+  padding: 6px;
+  border-radius: 6px;
+  border: none;
+}
+
+button {
+  margin-top: 10px;
+  padding: 8px 15px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background-color: #ffdf6c;
+  color: black;
+  font-weight: bold;
+  transition: 0.3s;
+}
+button:hover {
+  background-color: #ffe78c;
+}
+
+table {
+  margin: 20px auto;
+  border-collapse: collapse;
+  width: 80%;
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+#gantt {
+  display: flex;
+  justify-content: center;
+  margin: 25px 0;
+}
+.gantt-block {
+  background-color: #ffdf6c;
+  color: black;
+  padding: 10px;
+  margin: 2px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+#averages {
+  margin-top: 20px;
+}
+
+.back-btn {
+  display: inline-block;
+  margin: 25px;
+  padding: 8px 15px;
+  background-color: #00c6ff;
+  border-radius: 8px;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+}
+.back-btn:hover {
+  background-color: #0098d1;
+}
+</style>
+</head>
+
+<body>
+<header><i class="fa-solid fa-rotate-right"></i> SRTF (Shortest Remaining Time First)</header>
+
+<a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+
+<div>
+  <input id="process" placeholder="Process Name">
+  <input id="arrival" type="number" placeholder="Arrival Time">
+  <input id="burst" type="number" placeholder="Burst Time">
+  <button onclick="addProcess()">Add Process</button>
+  <button onclick="calculateSRTF()">Calculate</button>
+</div>
+
+<table id="processTable">
+  <thead>
+    <tr>
+      <th>Process</th><th>Arrival</th><th>Burst</th>
+      <th>Start</th><th>Completion</th><th>Waiting</th><th>Turnaround</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<div id="gantt"></div>
+<div id="averages"></div>
+
+<footer style="margin-top: 40px; padding: 20px; background: rgba(255,255,255,0.1); border-top: 1px solid rgba(255,255,255,0.2);">
+  <h2 style="color: #ffdf6c; font-weight: 600;">Learn More About SRTF Algorithm</h2>
+  <p style="margin: 10px 0; font-size: 1rem;">
+    📘 <a href="https://www.geeksforgeeks.org/dsa/shortest-remaining-time-first-preemptive-sjf-scheduling-algorithm/" target="_blank" style="color: #00c6ff; text-decoration: none; font-weight: 600;">Read Detailed Explanation on GeeksforGeeks</a>
+  </p>
+  <p style="margin: 10px 0; font-size: 1rem;">
+    🎥 <a href="https://www.youtube.com/watch?v=7O3EcvobP7s" target="_blank" style="color: #00ffb3; text-decoration: none; font-weight: 600;">Watch a YouTube Tutorial</a>
+  </p>
+  <p style="margin-top: 15px; color: #ccc; font-size: 0.9rem;">
+    © Developed by Alka Jha and Alok Mishra| MCA Project on CPU Scheduling Algorithms
+  </p>
+</footer>
+<script>
+let processes = [];
+
+function addProcess() {
+  let p = document.getElementById("process").value;
+  let a = parseInt(document.getElementById("arrival").value);
+  let b = parseInt(document.getElementById("burst").value);
+  if (p && !isNaN(a) && !isNaN(b)) {
+    processes.push({ name: p, arrival: a, burst: b, remaining: b });
+    alert("Process " + p + " added!");
+  }
+}
+
+function calculateSRTF() {
+  let time = 0, completed = 0;
+  let n = processes.length;
+  let result = [];
+  let timeline = []; // for gantt chart
+  let procCopy = JSON.parse(JSON.stringify(processes));
+  procCopy.sort((a,b)=>a.arrival - b.arrival);
+
+  let lastProcess = null;
+
+  while (completed < n) {
+    let available = procCopy.filter(p => p.arrival <= time && p.remaining > 0);
+
+    // CPU idle if no available process
+    if (available.length === 0) {
+      if (lastProcess !== "Idle") {
+        timeline.push({ name: "Idle", start: time, end: time + 1 });
+        lastProcess = "Idle";
+      } else {
+        timeline[timeline.length - 1].end++;
+      }
+      time++;
+      continue;
+    }
+
+    // Select shortest remaining time
+    available.sort((a,b)=>a.remaining - b.remaining);
+    let current = available[0];
+
+    // For Gantt chart: track process switches
+    if (lastProcess !== current.name) {
+      timeline.push({ name: current.name, start: time, end: time + 1 });
+      lastProcess = current.name;
+    } else {
+      timeline[timeline.length - 1].end++;
+    }
+
+    current.remaining--;
+
+    // Process completion
+    if (current.remaining === 0) {
+      completed++;
+      let completion = time + 1;
+      let turnaround = completion - current.arrival;
+      let waiting = turnaround - current.burst;
+      result.push({
+        name: current.name,
+        arrival: current.arrival,
+        burst: current.burst,
+        start: result.some(p => p.name === current.name) 
+               ? result.find(p => p.name === current.name).start 
+               : timeline.find(t => t.name === current.name)?.start ?? current.arrival,
+        completion,
+        waiting,
+        turnaround
+      });
+    }
+
+    time++;
+  }
+
+  displayResults(result, timeline);
+}
+
+function displayResults(result, timeline) {
+  // Sort results by process name for clarity
+  result.sort((a,b)=>a.name.localeCompare(b.name));
+
+  let tbody = document.querySelector("#processTable tbody");
+  tbody.innerHTML = "";
+  result.forEach(p => {
+    tbody.innerHTML += `<tr>
+      <td>${p.name}</td><td>${p.arrival}</td><td>${p.burst}</td>
+      <td>${p.start}</td><td>${p.completion}</td>
+      <td>${p.waiting}</td><td>${p.turnaround}</td>
+    </tr>`;
+  });
+
+  // --- Gantt Chart ---
+  let gantt = document.getElementById("gantt");
+  gantt.innerHTML = "";
+  timeline.forEach(block => {
+    let div = document.createElement("div");
+    div.classList.add("gantt-block");
+    div.style.flex = (block.end - block.start).toString();
+    div.innerHTML = `<strong>${block.name}</strong><div>${block.end}</div>`;
+    if (block.name === "Idle") {
+      div.style.backgroundColor = "#888";
+      div.style.color = "white";
+    }
+    gantt.appendChild(div);
+  });
+
+  // --- Average times ---
+  let totalWT = 0, totalTAT = 0;
+  result.forEach(p => { totalWT += p.waiting; totalTAT += p.turnaround; });
+  let avgWT = (totalWT / result.length).toFixed(2);
+  let avgTAT = (totalTAT / result.length).toFixed(2);
+
+  document.getElementById("averages").innerHTML = `
+    <h3>Average Waiting Time: ${avgWT}</h3>
+    <h3>Average Turnaround Time: ${avgTAT}</h3>`;
+}
+</script>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Priority Scheduling</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body {
+  background: linear-gradient(135deg, #141e30, #243b55);
+  color: white;
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+header {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-shadow: 1px 1px 4px #000;
+}
+
+input {
+  margin: 5px;
+  padding: 6px;
+  border-radius: 6px;
+  border: none;
+}
+
+button {
+  margin-top: 10px;
+  padding: 8px 15px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background-color: #ffdf6c;
+  color: black;
+  font-weight: bold;
+  transition: 0.3s;
+}
+button:hover {
+  background-color: #ffe78c;
+}
+
+table {
+  margin: 20px auto;
+  border-collapse: collapse;
+  width: 80%;
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+#gantt {
+  display: flex;
+  justify-content: center;
+  margin: 25px 0;
+}
+.gantt-block {
+  background-color: #ffdf6c;
+  color: black;
+  padding: 10px;
+  margin: 2px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+#averages {
+  margin-top: 20px;
+}
+
+.back-btn {
+  display: inline-block;
+  margin: 25px;
+  padding: 8px 15px;
+  background-color: #00c6ff;
+  border-radius: 8px;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+}
+.back-btn:hover {
+  background-color: #0098d1;
+}
+</style>
+</head>
+
+<body>
+<header><i class="fa-solid fa-star"></i> Priority Scheduling</header>
+
+<a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+
+<div>
+  <input id="process" placeholder="Process Name">
+  <input id="arrival" type="number" placeholder="Arrival Time">
+  <input id="burst" type="number" placeholder="Burst Time">
+  <input id="priority" type="number" placeholder="Priority (Lower = Higher)">
+  <button onclick="addProcess()">Add Process</button>
+  <button onclick="calculatePriority()">Calculate</button>
+</div>
+
+<table id="processTable">
+  <thead>
+    <tr>
+      <th>Process</th><th>Arrival</th><th>Burst</th><th>Priority</th>
+      <th>Start</th><th>Completion</th><th>Waiting</th><th>Turnaround</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<div id="gantt"></div>
+<div id="averages"></div>
+<footer style="margin-top: 40px; padding: 20px; background: rgba(255,255,255,0.1); border-top: 1px solid rgba(255,255,255,0.2);">
+  <h2 style="color: #ffdf6c; font-weight: 600;">Learn More About PRIORITY SCHEDULINGS Algorithm</h2>
+  <p style="margin: 10px 0; font-size: 1rem;">
+    📘 <a href="https://www.geeksforgeeks.org/videos/preemptive-and-non-preemptive-scheduling-in-os//" target="_blank" style="color: #00c6ff; text-decoration: none; font-weight: 600;">Read Detailed Explanation on GeeksforGeeks</a>
+  </p>
+  <p style="margin: 10px 0; font-size: 1rem;">
+    🎥 <a href="https://www.youtube.com/watch?v=5xYvFN9OrZs" target="_blank" style="color: #00ffb3; text-decoration: none; font-weight: 600;">Watch a YouTube Tutorial</a>
+  </p>
+  <p style="margin-top: 15px; color: #ccc; font-size: 0.9rem;">
+    © Developed by Alka Jha | MCA Project on CPU Scheduling Algorithms
+  </p>
+</footer>
+
+<script>
+let processes = [];
+
+function addProcess() {
+  let name = document.getElementById("process").value;
+  let arrival = parseInt(document.getElementById("arrival").value);
+  let burst = parseInt(document.getElementById("burst").value);
+  let priority = parseInt(document.getElementById("priority").value);
+  if (name && !isNaN(arrival) && !isNaN(burst) && !isNaN(priority)) {
+    processes.push({ name, arrival, burst, priority });
+    alert("Process " + name + " added!");
+  }
+}
+
+function calculatePriority() {
+  let result = [];
+  let time = 0;
+  let remaining = JSON.parse(JSON.stringify(processes));
+  remaining.sort((a, b) => a.arrival - b.arrival);
+
+  while (remaining.length > 0) {
+    let available = remaining.filter(p => p.arrival <= time);
+
+    if (available.length === 0) {
+      // CPU is idle until the next process arrives
+      let nextArrival = remaining[0].arrival;
+      result.push({
+        name: "Idle",
+        arrival: time,
+        burst: nextArrival - time,
+        priority: "-",
+        start: time,
+        completion: nextArrival,
+        waiting: "-",
+        turnaround: "-"
+      });
+      time = nextArrival;
+      continue;
+    }
+
+    available.sort((a, b) => a.priority - b.priority);
+    let current = available[0];
+    let start = Math.max(time, current.arrival);
+    let completion = start + current.burst;
+    let turnaround = completion - current.arrival;
+    let waiting = turnaround - current.burst;
+    result.push({ ...current, start, completion, waiting, turnaround });
+    time = completion;
+    remaining = remaining.filter(p => p.name !== current.name);
+  }
+
+  displayResults(result);
+}
+
+function displayResults(result) {
+  let tbody = document.querySelector("#processTable tbody");
+  tbody.innerHTML = "";
+  let gantt = document.getElementById("gantt");
+  gantt.innerHTML = "";
+
+  result.forEach(p => {
+    if (p.name !== "Idle") {
+      tbody.innerHTML += `<tr>
+        <td>${p.name}</td><td>${p.arrival}</td><td>${p.burst}</td><td>${p.priority}</td>
+        <td>${p.start}</td><td>${p.completion}</td><td>${p.waiting}</td><td>${p.turnaround}</td>
+      </tr>`;
+    }
+
+    // Create Gantt chart block
+    let block = document.createElement("div");
+    block.classList.add("gantt-block");
+    block.innerHTML = `<strong>${p.name}</strong><div>${p.completion}</div>`;
+    // Color differently for Idle time
+    if (p.name === "Idle") {
+      block.style.backgroundColor = "#aaa";
+      block.style.color = "white";
+    }
+    gantt.appendChild(block);
+  });
+
+  // Compute average times excluding Idle
+  let valid = result.filter(p => p.name !== "Idle");
+  let avgWT = (valid.reduce((s, p) => s + p.waiting, 0) / valid.length).toFixed(2);
+  let avgTAT = (valid.reduce((s, p) => s + p.turnaround, 0) / valid.length).toFixed(2);
+
+  document.getElementById("averages").innerHTML = `
+    <h3>Average Waiting Time: ${avgWT}</h3>
+    <h3>Average Turnaround Time: ${avgTAT}</h3>`;
+}
+</script>

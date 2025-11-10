@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CPU Scheduling Algorithms</title>
+
+  <!-- Font Awesome for Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #141e30, #243b55);
+      color: white;
+      font-family: "Poppins", sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+   /* 🌐 Navbar */
+nav {
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 25px;
+  padding: 12px 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+}
+
+nav a {
+  position: relative;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ✨ Professional glowing effect */
+nav a::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255, 223, 108, 0.5), transparent 70%);
+  opacity: 0;
+  transform: scale(0.6);
+  transition: all 0.4s ease;
+  border-radius: 10px;
+  z-index: -1;
+}
+
+nav a:hover::before {
+  opacity: 1;
+  transform: scale(2.2);
+}
+
+/* Button hover color + glow */
+nav a:hover {
+  color: #ffdf6c;
+  text-shadow: 0 0 8px rgba(255, 223, 108, 0.7);
+  transform: scale(1.07);
+  box-shadow: 0 0 15px rgba(255, 223, 108, 0.4);
+}
+
+    /* Header */
+    header {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 25px 10px;
+      font-size: 2rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-shadow: 1px 1px 4px #000;
+      position: relative;
+    }
+
+    header img {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      height: 50px;
+      border-radius: 8px;
+    }
+
+    /* Algorithm Cards */
+    .container {
+      margin-top: 60px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 25px;
+      padding: 0 40px 60px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 30px 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      transition: transform 0.3s, background 0.3s;
+      text-decoration: none;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .card i {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      color: #ffdf6c;
+    }
+
+    .card span {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+    .card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 30px 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s, background 0.3s, box-shadow 0.3s;
+  text-decoration: none;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ✨ Yellow glow highlight below the card */
+.card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  width: 0;
+  background: linear-gradient(90deg, #ffdf6c, #ffcc33);
+  transition: width 0.3s ease-in-out;
+}
+
+.card:hover::after {
+  width: 100%;
+}
+
+.card:hover {
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 20px rgba(255, 223, 108, 0.4);
+}
+
+
+    footer {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    /* Sparkles + Welcome Animation */
+    .welcome {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      font-weight: 600;
+      color: #fff;
+      opacity: 0;
+      animation: fadeInOut 4s ease-in-out forwards;
+      z-index: 3;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+      20%, 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.1); }
+    }
+
+    .star {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 0 8px white;
+      animation: fall 5s linear infinite;
+      z-index: 1;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 🌐 Navigation Bar -->
+  <nav>
+    <a href="project.html"><i class="fa-solid fa-file-alt"></i>Project</a>
+    <a href="code.html" target="_blank"><i class="fa-brands fa-github"></i>Code</a>
+    <a href="host.html" target="_blank"><i class="fa-solid fa-globe"></i>Host</a>
+    <a href="resources.html"><i class="fa-solid fa-book"></i>Resources</a>
+   
+  </nav>
+
+  <!-- Main Header -->
+  <header>
+    CPU Scheduling Algorithms
+    <img src="IIITVLOGO.png" alt="IIITV Logo">
+  </header>
+
+  <div class="container">
+    <a href="fcfs.html" class="card">
+      <i class="fa-solid fa-clock"></i>
+      <span>FCFS</span>
+    </a>
+    <a href="sjf.html" class="card">
+      <i class="fa-solid fa-bolt"></i>
+      <span>SJF</span>
+    </a>
+    <a href="srtf.html" class="card">
+      <i class="fa-solid fa-rotate-right"></i>
+      <span>SRTF</span>
+    </a>
+    <a href="priority.html" class="card">
+      <i class="fa-solid fa-star"></i>
+      <span>Priority</span>
+    </a>
+     <a href="PreemptivePriority.html" class="card">
+      <i class="fa-solid fa-chart-line"></i>
+      <span>Priority (Preemptive)</span>
+    </a>
+    <a href="roundrobin.html" class="card">
+      <i class="fa-solid fa-circle-notch"></i>
+      <span>Round Robin</span>
+    </a>
+    <a href="lrtf.html" class="card">
+      <i class="fa-solid fa-hourglass-half"></i>
+      <span>LRTF</span>
+    </a>
+    <a href="hrrn.html" class="card">
+      <i class="fa-solid fa-chart-line"></i>
+      <span>HRRN</span>
+    </a>
+   
+  </div>
+
+  <footer>
+    © Developed by Alka Jha and Alok Mishra | MCA Project on CPU Scheduling Algorithms
+  </footer>
+
+  <script>
+    // Sparkle animation
+    for (let i = 0; i < 30; i++) {
+      const star = document.createElement('div');
+      star.classList.add('star');
+      star.style.left = Math.random() * 100 + 'vw';
+      star.style.animationDuration = (2 + Math.random() * 3) + 's';
+      star.style.background = `hsl(${Math.random() * 60 + 40}, 100%, 90%)`;
+      document.body.appendChild(star);
+    }
+  </script>
+</body>
+</html>

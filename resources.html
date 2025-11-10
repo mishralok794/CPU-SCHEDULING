@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resources & Learning | CPU Scheduling Algorithms</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #141e30, #243b55);
+      color: white;
+      font-family: "Poppins", sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      text-align: center;
+      background-color: rgba(255,255,255,0.1);
+      padding: 25px 10px;
+      font-size: 2rem;
+      font-weight: bold;
+      text-shadow: 1px 1px 4px #000;
+    }
+
+    .container {
+      max-width: 950px;
+      margin: 60px auto;
+      padding: 40px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+    }
+
+    h2 {
+      color: #ffdf6c;
+      margin-bottom: 15px;
+    }
+
+    p {
+      color: #eaeaea;
+      line-height: 1.7;
+    }
+
+    section {
+      margin-bottom: 50px;
+    }
+
+    /* Diagram section */
+    .diagram {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .diagram img {
+      width: 100%;
+      max-width: 750px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(255,223,108,0.3);
+    }
+
+    /* Learning materials */
+    .resource-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 25px;
+      margin-top: 25px;
+    }
+
+    .resource-card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.3s ease-in-out;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+
+    .resource-card:hover {
+      background: rgba(255,255,255,0.2);
+      transform: scale(1.05);
+      box-shadow: 0 0 18px rgba(255,223,108,0.4);
+    }
+
+    .resource-card h3 {
+      color: #ffdf6c;
+      margin-bottom: 10px;
+    }
+
+    .resource-card a {
+      display: block;
+      margin: 6px 0;
+      text-decoration: none;
+      color: #fff;
+      transition: color 0.2s ease-in;
+    }
+
+    .resource-card a:hover {
+      color: #ffdf6c;
+    }
+
+    /* Pie chart styling */
+    .chart-container {
+      width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background-color: rgba(255,255,255,0.1);
+      font-size: 0.9rem;
+      color: #ccc;
+      margin-top: 50px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <i class="fa-solid fa-book-open"></i> Learning Resources & Requirements
+  </header>
+
+  <div class="container">
+    <!-- 🧠 Flow Diagram Section -->
+    <section id="diagram">
+      <h2><i class="fa-solid fa-diagram-project"></i> Project Requirement Flow</h2>
+      <p>
+        The following diagram outlines the learning and technical requirements needed to understand and replicate
+        the <b>CPU Scheduling Algorithms Project</b>.
+      </p>
+      <div class="diagram">
+        <!-- You can replace this with your own uploaded flowchart -->
+        <img src="flowchart.png" 
+        alt="Project Flow Diagram"
+        style="width: 50%; max-width: 400px; display: block; margin: 30px auto; border-radius: 10px;">
+        <p style="font-size:0.9rem; color:#ccc; margin-top:8px;">(Diagram showing relation between HTML, CSS, JS, and Scheduling Algorithms)</p>
+      </div>
+    </section>
+
+    <!-- 📚 Learning Materials Section -->
+    <section id="learning">
+      <h2><i class="fa-solid fa-graduation-cap"></i> Learning Materials</h2>
+      <p>Explore curated resources to strengthen your understanding before replicating this project.</p>
+
+      <div class="resource-list">
+        <div class="resource-card">
+          <h3>Scheduling Algorithms</h3>
+          <a href="https://www.youtube.com/playlist?list=PLxCzCOWd7aiGz9donHRrE9I3Mwn6XdP8p" target="_blank"><i class="fa-brands fa-youtube"></i> YouTube Video</a>
+          <a href="https://www.geeksforgeeks.org/operating-systems/cpu-scheduling-in-operating-systems/" target="_blank"><i class="fa-solid fa-globe"></i> Website Guide</a>
+        </div>
+
+        <div class="resource-card">
+          <h3>HTML</h3>
+          <a href="https://www.youtube.com/watch?v=HcOc7P5BMi4" target="_blank"><i class="fa-brands fa-youtube"></i> YouTube Tutorial</a>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank"><i class="fa-solid fa-globe"></i> MDN Documentation</a>
+        </div>
+
+        <div class="resource-card">
+          <h3>CSS</h3>
+          <a href="https://www.youtube.com/watch?v=1Rs2ND1ryYc" target="_blank"><i class="fa-brands fa-youtube"></i> YouTube Tutorial</a>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/CSS" target="_blank"><i class="fa-solid fa-globe"></i> MDN Documentation</a>
+        </div>
+
+        <div class="resource-card">
+          <h3>JavaScript</h3>
+          <a href="https://www.youtube.com/playlist?list=PLGjplNEQ1it_oTvuLRNqXfz_v_0pq6unW" target="_blank"><i class="fa-brands fa-youtube"></i> YouTube Tutorial</a>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank"><i class="fa-solid fa-globe"></i> MDN Documentation</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 📊 Skill Proficiency Chart -->
+    <section id="skills">
+      <h2><i class="fa-solid fa-chart-pie"></i> Skill Proficiency Needed</h2>
+      <p>
+        The chart below indicates an approximate distribution of proficiency required in different areas
+        to successfully complete this project.
+      </p>
+
+      <div class="chart-container">
+        <canvas id="skillChart"></canvas>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    © Developed by Alka Jha & Alok Mishra | MCA Project | CPU Scheduling Algorithms
+  </footer>
+
+  <script>
+    // Pie Chart Data
+    const ctx = document.getElementById('skillChart').getContext('2d');
+    const skillChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['HTML', 'CSS', 'JavaScript', 'Scheduling Algorithms'],
+        datasets: [{
+          data: [20, 25, 30, 25],
+          backgroundColor: [
+            '#ff6384',
+            '#36a2eb',
+            '#ffce56',
+            '#4bc0c0'
+          ],
+          borderColor: '#111',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: {
+              color: 'white',
+              font: { size: 14 }
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0,0,0,0.7)',
+            titleColor: '#ffdf6c',
+            bodyColor: '#fff'
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

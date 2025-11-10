@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Round Robin Scheduling</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body {
+  background: linear-gradient(135deg, #141e30, #243b55);
+  color: white;
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+header {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-shadow: 1px 1px 4px #000;
+}
+
+input {
+  margin: 5px;
+  padding: 6px;
+  border-radius: 6px;
+  border: none;
+}
+
+button {
+  margin-top: 10px;
+  padding: 8px 15px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background-color: #ffdf6c;
+  color: black;
+  font-weight: bold;
+  transition: 0.3s;
+}
+button:hover {
+  background-color: #ffe78c;
+}
+
+table {
+  margin: 20px auto;
+  border-collapse: collapse;
+  width: 80%;
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+#gantt {
+  display: flex;
+  justify-content: center;
+  margin: 25px 0;
+}
+.gantt-block {
+  background-color: #ffdf6c;
+  color: black;
+  padding: 10px;
+  margin: 2px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+#averages {
+  margin-top: 20px;
+}
+
+.back-btn {
+  display: inline-block;
+  margin: 25px;
+  padding: 8px 15px;
+  background-color: #00c6ff;
+  border-radius: 8px;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+}
+.back-btn:hover {
+  background-color: #0098d1;
+}
+/* Ready Queue Section */
+#readyQueue {
+  width: 80%;
+  margin: 20px auto;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 15px;
+  text-align: left;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+#readyQueue h3 {
+  color: #ffdf6c;
+  font-weight: 600;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+#readyQueue pre {
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  max-height: 250px; /* scrollable if too long */
+  overflow-y: auto;
+  white-space: pre-wrap; /* wrap lines if long */
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+</style>
+</head>
+
+<body>
+<header><i class="fa-solid fa-circle-notch"></i> Round Robin Scheduling</header>
+
+<a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+
+<div>
+  <input id="process" placeholder="Process Name">
+  <input id="arrival" type="number" placeholder="Arrival Time">
+  <input id="burst" type="number" placeholder="Burst Time">
+  <input id="quantum" type="number" placeholder="Time Quantum">
+  <button onclick="addProcess()">Add Process</button>
+  <button onclick="calculateRR()">Calculate</button>
+</div>
+
+<table id="processTable">
+  <thead>
+    <tr>
+      <th>Process</th><th>Arrival</th><th>Burst</th>
+      <th>Completion</th><th>Waiting</th><th>Turnaround</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+<!-- Ready Queue Section -->
+<div id="readyQueue">
+  <h3>Ready Queue Timeline</h3>
+  <pre id="readyQueueLog">No data yet...</pre>
+</div>
+
+
+<div id="gantt"></div>
+<!-- Gantt Chart -->
+<div id="gantt"></div>
+
+
+<!-- Averages Section -->
+<div id="averages"></div>
+
+<div id="averages"></div>
+<footer style="margin-top: 40px; padding: 20px; background: rgba(255,255,255,0.1); border-top: 1px solid rgba(255,255,255,0.2);">
+  <h2 style="color: #ffdf6c; font-weight: 600;">Learn More About ROUND ROBIN Algorithm</h2>
+  <p style="margin: 10px 0; font-size: 1rem;">
+    📘 <a href="https://www.geeksforgeeks.org/operating-systems/round-robin-scheduling-in-operating-system/#:~:text=Round%20Robin%20Scheduling%20is%20a,%22%2C%20regardless%20of%20their%20priority." target="_blank" style="color: #00c6ff; text-decoration: none; font-weight: 600;">Read Detailed Explanation on GeeksforGeeks</a>
+  </p>
+  <p style="margin: 10px 0; font-size: 1rem;">
+    🎥 <a href="https://www.youtube.com/watch?v=p74NUzIN0j4" target="_blank" style="color: #00ffb3; text-decoration: none; font-weight: 600;">Watch a YouTube Tutorial</a>
+  </p>
+  <p style="margin-top: 15px; color: #ccc; font-size: 0.9rem;">
+    © Developed by Alka Jha and Alok Mishra | MCA Project on CPU Scheduling Algorithms
+  </p>
+</footer>
+<script>
+let processes = [];
+
+function addProcess() {
+  let name = document.getElementById("process").value;
+  let arrival = parseInt(document.getElementById("arrival").value);
+  let burst = parseInt(document.getElementById("burst").value);
+
+  if (name && !isNaN(arrival) && !isNaN(burst)) {
+    processes.push({ name, arrival, burst, remaining: burst });
+    alert("Process " + name + " added!");
+    document.getElementById("process").value = "";
+    document.getElementById("arrival").value = "";
+    document.getElementById("burst").value = "";
+  } else {
+    alert("Please enter valid process details.");
+  }
+}
+
+function calculateRR() {
+  let quantum = parseInt(document.getElementById("quantum").value);
+  if (isNaN(quantum) || quantum <= 0) {
+    alert("Please enter a valid time quantum.");
+    return;
+  }
+
+  let time = 0;
+  let completed = [];
+  let queue = [];
+  let ganttData = [];
+  let readyQueueLog = [];
+
+  processes.sort((a, b) => a.arrival - b.arrival);
+  let remaining = JSON.parse(JSON.stringify(processes));
+
+  while (remaining.length > 0 || queue.length > 0) {
+    // Add arrived processes to ready queue
+    while (remaining.length > 0 && remaining[0].arrival <= time) {
+      queue.push(remaining.shift());
+    }
+
+    // If no process is ready, CPU is idle
+    if (queue.length === 0) {
+      let nextArrival = remaining.length > 0 ? remaining[0].arrival : time + 1;
+      ganttData.push({ name: "IDLE", start: time, end: nextArrival });
+      readyQueueLog.push(`Time ${time}-${nextArrival}: CPU Idle`);
+      time = nextArrival;
+      continue;
+    }
+
+    let current = queue.shift();
+    let execTime = Math.min(current.remaining, quantum);
+
+    readyQueueLog.push(`Time ${time}: Executing ${current.name} | Queue: [${queue.map(p => p.name).join(", ") || "Empty"}]`);
+
+    ganttData.push({ name: current.name, start: time, end: time + execTime });
+    current.remaining -= execTime;
+    time += execTime;
+
+    // Add newly arrived processes during this execution
+    while (remaining.length > 0 && remaining[0].arrival <= time) {
+      queue.push(remaining.shift());
+    }
+
+    if (current.remaining > 0) queue.push(current);
+    else {
+      current.completion = time;
+      current.turnaround = time - current.arrival;
+      current.waiting = current.turnaround - current.burst;
+      completed.push(current);
+    }
+  }
+
+  displayResults(completed, ganttData, readyQueueLog);
+}
+
+function displayResults(result, ganttData, readyQueueLog) {
+  let tbody = document.querySelector("#processTable tbody");
+  tbody.innerHTML = "";
+  let gantt = document.getElementById("gantt");
+  gantt.innerHTML = "";
+
+  // Process Table
+  result.forEach(p => {
+    tbody.innerHTML += `<tr>
+      <td>${p.name}</td>
+      <td>${p.arrival}</td>
+      <td>${p.burst}</td>
+      <td>${p.completion}</td>
+      <td>${p.waiting}</td>
+      <td>${p.turnaround}</td>
+    </tr>`;
+  });
+
+  // Gantt Chart (continuous timeline)
+  ganttData.forEach(g => {
+    let block = document.createElement("div");
+    block.classList.add("gantt-block");
+    block.style.backgroundColor = g.name === "IDLE" ? "#888" : "#ffdf6c";
+    block.innerHTML = `<strong>${g.name}</strong><div>${g.end}</div>`;
+    gantt.appendChild(block);
+  });
+
+  // Ready Queue Log (step-by-step)
+  let rqDiv = document.getElementById("readyQueue");
+  if (!rqDiv) {
+    rqDiv = document.createElement("div");
+    rqDiv.id = "readyQueue";
+    rqDiv.style.marginTop = "20px";
+    rqDiv.style.textAlign = "left";
+    rqDiv.style.width = "80%";
+    rqDiv.style.margin = "20px auto";
+    rqDiv.style.padding = "10px";
+    rqDiv.style.background = "rgba(255,255,255,0.1)";
+    rqDiv.style.borderRadius = "8px";
+    document.body.insertBefore(rqDiv, document.getElementById("averages"));
+  }
+
+  rqDiv.innerHTML = `<h3>Ready Queue Timeline</h3><pre>${readyQueueLog.join("\n")}</pre>`;
+
+  // Averages
+  let avgWT = (result.reduce((s, p) => s + p.waiting, 0) / result.length).toFixed(2);
+  let avgTAT = (result.reduce((s, p) => s + p.turnaround, 0) / result.length).toFixed(2);
+  document.getElementById("averages").innerHTML = `
+    <h3>Average Waiting Time: ${avgWT}</h3>
+    <h3>Average Turnaround Time: ${avgTAT}</h3>`;
+}
+</script>
+
+
+</body>
+</html>

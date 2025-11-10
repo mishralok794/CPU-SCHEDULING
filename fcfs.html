@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FCFS Scheduling</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body {
+  background: linear-gradient(135deg, #141e30, #243b55);
+  color: white;
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+header {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-shadow: 1px 1px 4px #000;
+}
+
+input {
+  margin: 5px;
+  padding: 6px;
+  border-radius: 6px;
+  border: none;
+}
+
+button {
+  margin-top: 10px;
+  padding: 8px 15px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background-color: #ffdf6c;
+  color: black;
+  font-weight: bold;
+  transition: 0.3s;
+}
+button:hover {
+  background-color: #ffe78c;
+}
+
+table {
+  margin: 20px auto;
+  border-collapse: collapse;
+  width: 80%;
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+#gantt {
+  display: flex;
+  justify-content: center;
+  margin: 25px 0;
+}
+.gantt-block {
+  background-color: #ffdf6c;
+  color: black;
+  padding: 10px;
+  margin: 2px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+#averages {
+  margin-top: 20px;
+}
+
+.back-btn {
+  display: inline-block;
+  margin: 25px;
+  padding: 8px 15px;
+  background-color: #00c6ff;
+  border-radius: 8px;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+}
+.back-btn:hover {
+  background-color: #0098d1;
+}
+
+
+
+</style>
+</head>
+
+<body>
+<header><i class="fa-solid fa-clock"></i> FCFS (First Come First Serve)</header>
+
+<a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+
+<div>
+  <input id="process" placeholder="Process Name">
+  <input id="arrival" type="number" placeholder="Arrival Time">
+  <input id="burst" type="number" placeholder="Burst Time">
+  <button onclick="addProcess()">Add Process</button>
+  <button onclick="calculateFCFS()">Calculate</button>
+</div>
+
+<table id="processTable">
+  <thead>
+    <tr>
+      <th>Process</th><th>Arrival</th><th>Burst</th>
+      <th>Start</th><th>Completion</th><th>Waiting</th><th>Turnaround</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<div id="gantt"></div>
+<div id="averages"></div>
+<footer style="margin-top: 40px; padding: 20px; background: rgba(255,255,255,0.1); border-top: 1px solid rgba(255,255,255,0.2);">
+  <h2 style="color: #ffdf6c; font-weight: 600;">Learn More About FCFS Algorithm</h2>
+  <p style="margin: 10px 0; font-size: 1rem;">
+    📘 <a href="https://www.geeksforgeeks.org/dsa/first-come-first-serve-cpu-scheduling-non-preemptive/" target="_blank" style="color: #00c6ff; text-decoration: none; font-weight: 600;">Read Detailed Explanation on GeeksforGeeks</a>
+  </p>
+  <p style="margin: 10px 0; font-size: 1rem;">
+    🎥 <a href="https://www.youtube.com/watch?v=WYo1SpUh9FI" target="_blank" style="color: #00ffb3; text-decoration: none; font-weight: 600;">Watch a YouTube Tutorial</a>
+  </p>
+  <p style="margin-top: 15px; color: #ccc; font-size: 0.9rem;">
+    © Developed by Alka Jha and Alok Mishra | MCA Project on CPU Scheduling Algorithms
+  </p>
+</footer>
+
+<script>
+let processes = [];
+
+function addProcess() {
+  let p = document.getElementById("process").value;
+  let a = parseInt(document.getElementById("arrival").value);
+  let b = parseInt(document.getElementById("burst").value);
+  if (p && !isNaN(a) && !isNaN(b)) {
+    processes.push({ name: p, arrival: a, burst: b });
+    alert("Process " + p + " added!");
+  }
+}
+
+function calculateFCFS() {
+  processes.sort((a, b) => a.arrival - b.arrival);
+  let time = 0;
+  let result = [];
+  let timeline = [];
+
+  processes.forEach(p => {
+    // If CPU is idle before this process arrives
+    if (p.arrival > time) {
+      timeline.push({
+        name: "Idle",
+        start: time,
+        end: p.arrival
+      });
+      time = p.arrival;
+    }
+
+    // Normal process execution
+    let start = Math.max(time, p.arrival);
+    let completion = start + p.burst;
+    let waiting = start - p.arrival;
+    let turnaround = completion - p.arrival;
+    time = completion;
+    result.push({ ...p, start, completion, waiting, turnaround });
+
+    // Add this process block to the timeline
+    timeline.push({
+      name: p.name,
+      start,
+      end: completion
+    });
+  });
+
+  displayResults(result, timeline);
+}
+
+function displayResults(result, timeline) {
+  let tableBody = document.querySelector("#processTable tbody");
+  tableBody.innerHTML = "";
+  let gantt = document.getElementById("gantt");
+  gantt.innerHTML = "";
+
+  // Table rows
+  result.forEach(p => {
+    let row = `<tr>
+      <td>${p.name}</td><td>${p.arrival}</td><td>${p.burst}</td>
+      <td>${p.start}</td><td>${p.completion}</td><td>${p.waiting}</td><td>${p.turnaround}</td>
+    </tr>`;
+    tableBody.innerHTML += row;
+  });
+
+  // Gantt Chart
+  timeline.forEach(block => {
+    let div = document.createElement("div");
+    div.classList.add("gantt-block");
+    div.style.flex = (block.end - block.start).toString();
+    div.innerHTML = `<strong>${block.name}</strong><div>${block.end}</div>`;
+    if (block.name === "Idle") {
+      div.style.backgroundColor = "#888";
+      div.style.color = "white";
+    }
+    gantt.appendChild(div);
+  });
+
+  // Averages
+  let totalWT = 0, totalTAT = 0;
+  result.forEach(p => {
+    totalWT += p.waiting;
+    totalTAT += p.turnaround;
+  });
+  let avgWT = (totalWT / result.length).toFixed(2);
+  let avgTAT = (totalTAT / result.length).toFixed(2);
+
+  document.getElementById("averages").innerHTML = `
+    <h3>Average Waiting Time: ${avgWT}</h3>
+    <h3>Average Turnaround Time: ${avgTAT}</h3>`;
+}
+</script>
+
+
+
+</script>
+</body>
+</html>
