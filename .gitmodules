@@ -1,0 +1,3 @@
+[submodule "CPU-SCHEDULING"]
+	path = CPU-SCHEDULING
+	url = https://github.com/mishralok794/CPU-SCHEDULING.git
