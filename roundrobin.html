@@ -215,10 +215,12 @@ function calculateRR() {
     while (remaining.length > 0 && remaining[0].arrival <= time) {
       queue.push(remaining.shift());
     }
-
+  
     // If no process is ready, CPU is idle
     if (queue.length === 0) {
       let nextArrival = remaining.length > 0 ? remaining[0].arrival : time + 1;
+      // iska mtalab ye hua ki agar rem.len exist karta hai to jo firt index pr proess hi uska arrival
+      //  time next arrival me save kr do otherwise jo current gantt chart k time hai uska badha do
       ganttData.push({ name: "IDLE", start: time, end: nextArrival });
       readyQueueLog.push(`Time ${time}-${nextArrival}: CPU Idle`);
       time = nextArrival;

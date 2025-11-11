@@ -152,7 +152,7 @@ function calculatePriority() {
   remaining.sort((a, b) => a.arrival - b.arrival);
 
   while (remaining.length > 0) {
-    let available = remaining.filter(p => p.arrival <= time);
+    let available = remaining.filter(p => p.arrival <= time);// ye sb ready queue me aa chuke hai execute hoe ke liye
 
     if (available.length === 0) {
       // CPU is idle until the next process arrives
